@@ -26,7 +26,15 @@ router.post('/:id/reviews', async (req, res) => {
   const { id } = req.params;
   const parse = reviewSchema.safeParse(req.body);
   if (!parse.success) return res.status(400).json(parse.error.flatten());
-  const review = await prisma.review.create({ data: { ...parse.data, doctorId: id } });
+  const { rating, comment, userId } = parse.data;
+  const review = await prisma.review.create({ 
+    data: { 
+      rating, 
+      comment, 
+      userId, 
+      doctorId: id 
+    } 
+  });
   res.status(201).json({ data: review });
 });
 
