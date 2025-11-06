@@ -1,0 +1,318 @@
+{
+	"info": {
+		"_postman_id": "medico-api-collection",
+		"name": "Medico API",
+		"description": "Complete API collection for Medico backend - Login, Register, Categories, Doctors, Reviews, Appointments",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Register",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const jsonData = pm.response.json();",
+									"    pm.environment.set(\"token\", jsonData.token);",
+									"    pm.environment.set(\"userId\", jsonData.user.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"James Schleifer\",\n  \"email\": \"jamesschleifer@gmail.com\",\n  \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "register"]
+						},
+						"description": "Register a new user account"
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const jsonData = pm.response.json();",
+									"    pm.environment.set(\"token\", jsonData.token);",
+									"    pm.environment.set(\"userId\", jsonData.user.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"jamesschleifer@gmail.com\",\n  \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "login"]
+						},
+						"description": "Login with email and password"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Health",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/health",
+							"host": ["{{baseUrl}}"],
+							"path": ["health"]
+						},
+						"description": "Check API health and database connection"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Catalog",
+			"item": [
+				{
+					"name": "Get Categories",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/catalog/categories",
+							"host": ["{{baseUrl}}"],
+							"path": ["catalog", "categories"]
+						},
+						"description": "Get all medical service categories (Doctor, Pharmacy, Hospital, Ambulance, Neurology, Cardiology, etc.)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Doctors",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/catalog/doctors?categoryId=&q=",
+							"host": ["{{baseUrl}}"],
+							"path": ["catalog", "doctors"],
+							"query": [
+								{
+									"key": "categoryId",
+									"value": "",
+									"description": "Filter by category ID (optional)"
+								},
+								{
+									"key": "q",
+									"value": "",
+									"description": "Search query for doctor name or specialization (optional)"
+								}
+							]
+						},
+						"description": "Get list of doctors. Can filter by categoryId or search by name/specialization"
+					},
+					"response": []
+				},
+				{
+					"name": "Search Doctors by Category",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/catalog/doctors?categoryId={{categoryId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["catalog", "doctors"],
+							"query": [
+								{
+									"key": "categoryId",
+									"value": "{{categoryId}}",
+									"description": "Category ID (e.g., Neurology, Cardiology)"
+								}
+							]
+						},
+						"description": "Get doctors filtered by category"
+					},
+					"response": []
+				},
+				{
+					"name": "Search Doctors by Query",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/catalog/doctors?q=psychiatrist",
+							"host": ["{{baseUrl}}"],
+							"path": ["catalog", "doctors"],
+							"query": [
+								{
+									"key": "q",
+									"value": "psychiatrist",
+									"description": "Search term"
+								}
+							]
+						},
+						"description": "Search doctors by name or specialization"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Doctors",
+			"item": [
+				{
+					"name": "Get Doctor Details",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/doctors/{{doctorId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["doctors", "{{doctorId}}"]
+						},
+						"description": "Get detailed information about a specific doctor"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Doctor Reviews",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/doctors/{{doctorId}}/reviews",
+							"host": ["{{baseUrl}}"],
+							"path": ["doctors", "{{doctorId}}", "reviews"]
+						},
+						"description": "Get all reviews for a doctor"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Review",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"rating\": 5,\n  \"comment\": \"Dr. Lector provided exceptional care, addressing my concerns with expertise and empathy.\",\n  \"userId\": \"{{userId}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/doctors/{{doctorId}}/reviews",
+							"host": ["{{baseUrl}}"],
+							"path": ["doctors", "{{doctorId}}", "reviews"]
+						},
+						"description": "Create a new review for a doctor (rating 1-5, comment required)"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Appointments",
+			"item": [
+				{
+					"name": "Book Appointment",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userId\": \"{{userId}}\",\n  \"date\": \"2025-01-16T10:00:00.000Z\",\n  \"notes\": \"My tummy hurts for no reason :(\",\n  \"gender\": \"Female\",\n  \"birthDate\": \"1995-05-12\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/appointments/{{doctorId}}/book",
+							"host": ["{{baseUrl}}"],
+							"path": ["appointments", "{{doctorId}}", "book"]
+						},
+						"description": "Book an appointment with a doctor. Date should be ISO 8601 format."
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Appointments",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/appointments/user/{{userId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["appointments", "user", "{{userId}}"]
+						},
+						"description": "Get all appointments for a user"
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		}
+	]
+}

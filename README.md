@@ -43,3 +43,7 @@ npm run dev
 ## Postman
 
 - A Postman collection will be added in a follow-up commit after deploy URL is available.
+
+
+## Postman
+A starter Postman collection is included at `postman/Medico.postman_collection.json`.
