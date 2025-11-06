@@ -37,9 +37,9 @@ app.get('/health', async (_req, res) => {
 
 app.use('/auth', authRouter);
 app.use('/catalog', catalogRouter);
+app.use('/admin/doctors', adminRouter);
 app.use('/doctors', doctorRouter);
 app.use('/appointments', appointmentRouter);
-app.use('/admin/doctors', adminRouter);
 
 app.use((req, res) => {
   res.status(404).json({ error: 'Not Found' });
