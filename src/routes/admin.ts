@@ -23,8 +23,21 @@ router.post('/', async (req, res) => {
   const parse = doctorSchema.safeParse(req.body);
   if (!parse.success) return res.status(400).json(parse.error.flatten());
   
+  const { name, specialization, photoUrl, experienceYrs, patientsCount, feeCents, ratingAverage, ratingCount, distanceM, categoryId } = parse.data;
+  
   const doctor = await prisma.doctor.create({
-    data: parse.data,
+    data: {
+      name,
+      specialization,
+      photoUrl,
+      experienceYrs,
+      patientsCount,
+      feeCents,
+      ratingAverage,
+      ratingCount,
+      distanceM,
+      categoryId
+    },
     include: { category: true }
   });
   
@@ -35,7 +48,7 @@ router.post('/', async (req, res) => {
 router.get('/', async (req, res) => {
   const doctors = await prisma.doctor.findMany({
     include: { category: true },
-    orderBy: { createdAt: 'desc' }
+    orderBy: { name: 'asc' }
   });
   res.json({ data: doctors });
 });
