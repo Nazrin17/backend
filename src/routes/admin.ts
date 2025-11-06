@@ -20,37 +20,47 @@ const doctorSchema = z.object({
 
 // Create doctor (admin endpoint)
 router.post('/', async (req, res) => {
-  const parse = doctorSchema.safeParse(req.body);
-  if (!parse.success) return res.status(400).json(parse.error.flatten());
-  
-  const { name, specialization, photoUrl, experienceYrs, patientsCount, feeCents, ratingAverage, ratingCount, distanceM, categoryId } = parse.data;
-  
-  const doctor = await prisma.doctor.create({
-    data: {
-      name,
-      specialization,
-      photoUrl,
-      experienceYrs,
-      patientsCount,
-      feeCents,
-      ratingAverage,
-      ratingCount,
-      distanceM,
-      categoryId
-    },
-    include: { category: true }
-  });
-  
-  res.status(201).json({ data: doctor });
+  try {
+    const parse = doctorSchema.safeParse(req.body);
+    if (!parse.success) return res.status(400).json(parse.error.flatten());
+    
+    const { name, specialization, photoUrl, experienceYrs, patientsCount, feeCents, ratingAverage, ratingCount, distanceM, categoryId } = parse.data;
+    
+    const doctor = await prisma.doctor.create({
+      data: {
+        name,
+        specialization,
+        photoUrl,
+        experienceYrs,
+        patientsCount,
+        feeCents,
+        ratingAverage,
+        ratingCount,
+        distanceM,
+        categoryId
+      },
+      include: { category: true }
+    });
+    
+    res.status(201).json({ data: doctor });
+  } catch (error: any) {
+    console.error('Admin create doctor error:', error);
+    res.status(500).json({ error: error.message || 'Failed to create doctor' });
+  }
 });
 
 // Get all doctors
 router.get('/', async (req, res) => {
-  const doctors = await prisma.doctor.findMany({
-    include: { category: true },
-    orderBy: { name: 'asc' }
-  });
-  res.json({ data: doctors });
+  try {
+    const doctors = await prisma.doctor.findMany({
+      include: { category: true },
+      orderBy: { name: 'asc' }
+    });
+    res.json({ data: doctors });
+  } catch (error: any) {
+    console.error('Admin get doctors error:', error);
+    res.status(500).json({ error: error.message || 'Failed to fetch doctors' });
+  }
 });
 
 export default router;
