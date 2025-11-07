@@ -21,7 +21,8 @@ const doctorSchema = z.object({
   ratingAverage: z.number().min(0).max(5).default(0),
   ratingCount: z.number().int().min(0).default(0),
   distanceM: z.number().int().optional(),
-  categoryId: z.string()
+  categoryId: z.string(),
+  availableSlots: z.array(z.string()).optional() // e.g. ["09:00", "10:00", "11:00", "14:00", "15:00"]
 });
 
 // ===== CATEGORIES =====
@@ -94,7 +95,7 @@ router.post('/doctors', async (req, res) => {
     const parse = doctorSchema.safeParse(req.body);
     if (!parse.success) return res.status(400).json(parse.error.flatten());
     
-    const { name, specialization, photoUrl, experienceYrs, patientsCount, feeCents, ratingAverage, ratingCount, distanceM, categoryId } = parse.data;
+    const { name, specialization, photoUrl, experienceYrs, patientsCount, feeCents, ratingAverage, ratingCount, distanceM, categoryId, availableSlots } = parse.data;
     
     const doctor = await prisma.doctor.create({
       data: {
@@ -107,7 +108,8 @@ router.post('/doctors', async (req, res) => {
         ratingAverage,
         ratingCount,
         distanceM,
-        categoryId
+        categoryId,
+        availableSlots: availableSlots ? JSON.stringify(availableSlots) : null
       },
       include: { category: true }
     });

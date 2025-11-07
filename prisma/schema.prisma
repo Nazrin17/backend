@@ -39,6 +39,7 @@ model Doctor {
   distanceM     Int?      // for sample data only
   categoryId    String
   category      Category  @relation(fields: [categoryId], references: [id])
+  availableSlots String? // JSON array of available time slots, e.g. ["09:00", "10:00", "11:00"]
   reviews       Review[]
   appointments  Appointment[]
 }

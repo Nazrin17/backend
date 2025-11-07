@@ -10,6 +10,7 @@ import catalogRouter from './routes/catalog.js';
 import doctorRouter from './routes/doctor.js';
 import appointmentRouter from './routes/appointment.js';
 import adminRouter from './routes/admin.js';
+import availabilityRouter from './routes/availability.js';
 
 const app = express();
 const prisma = new PrismaClient();
@@ -40,6 +41,7 @@ app.use('/catalog', catalogRouter);
 app.use('/admin', adminRouter);
 app.use('/doctors', doctorRouter);
 app.use('/appointments', appointmentRouter);
+app.use('/availability', availabilityRouter);
 
 app.use((req, res) => {
   res.status(404).json({ error: 'Not Found' });
