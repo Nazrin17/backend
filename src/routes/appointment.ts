@@ -49,8 +49,9 @@ router.post('/:doctorId/book', async (req, res) => {
       }
     }
 
-    // Check if this time slot is already booked
-    const existingAppointment = await prisma.appointment.findFirst({
+    // Check if this exact time slot is already booked
+    // Get all appointments for this doctor on this date
+    const existingAppointments = await prisma.appointment.findMany({
       where: {
         doctorId,
         date: {
@@ -60,15 +61,19 @@ router.post('/:doctorId/book', async (req, res) => {
       }
     });
 
-    if (existingAppointment) {
-      const existingTime = new Date(existingAppointment.date).toTimeString().slice(0, 5);
-      if (existingTime === appointmentTime) {
-        return res.status(409).json({ 
-          error: 'This time slot is already booked',
-          bookedTime: appointmentTime,
-          existingAppointmentId: existingAppointment.id
-        });
-      }
+    // Check if requested time slot is already taken
+    const conflictingAppointment = existingAppointments.find(apt => {
+      const aptTime = new Date(apt.date).toTimeString().slice(0, 5);
+      return aptTime === appointmentTime;
+    });
+
+    if (conflictingAppointment) {
+      return res.status(409).json({ 
+        error: 'This time slot is already booked',
+        bookedTime: appointmentTime,
+        date: appointmentDateOnly.toISOString().split('T')[0],
+        existingAppointmentId: conflictingAppointment.id
+      });
     }
 
     // Create appointment
