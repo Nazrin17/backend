@@ -13,7 +13,8 @@ Complete API documentation for Medico Backend - Medical Services Platform
 3. [Catalog](#catalog)
 4. [Doctors](#doctors)
 5. [Appointments](#appointments)
-6. [Admin](#admin)
+6. [Availability](#availability)
+7. [Admin](#admin)
 
 ---
 
@@ -208,6 +209,7 @@ Get detailed information about a specific doctor.
     "ratingCount": 87,
     "distanceM": 500,
     "categoryId": "clx1234567891",
+    "availableSlots": "[\"09:00\",\"10:00\",\"11:00\",\"14:00\",\"15:00\"]",
     "category": {
       "id": "clx1234567891",
       "name": "Neurology",
@@ -220,6 +222,8 @@ Get detailed information about a specific doctor.
 **Status Codes:**
 - `200` - Success
 - `404` - Doctor not found
+
+**Note:** `availableSlots` is a JSON string array of time slots (e.g., `["09:00", "10:00", "11:00"]`). If null, doctor accepts appointments at any time.
 
 ---
 
@@ -303,7 +307,9 @@ Create a new review for a doctor.
 
 ### POST /appointments/:doctorId/book
 
-Book an appointment with a doctor.
+Book an appointment with a doctor. The system automatically checks:
+1. If the doctor has defined available time slots, the requested time must be in that list
+2. If the time slot is already booked by another user (prevents double booking)
 
 **Path Parameters:**
 - `doctorId` - Doctor ID
@@ -338,14 +344,43 @@ Book an appointment with a doctor.
 
 **Status Codes:**
 - `201` - Appointment booked successfully
-- `400` - Validation error
+- `400` - Validation error or time slot not available
+- `404` - Doctor not found
+- `409` - Time slot already booked (double booking prevented)
+- `500` - Server error
 
 **Validation Rules:**
 - `userId`: Required, valid user ID
-- `date`: Required, ISO 8601 date string
+- `date`: Required, ISO 8601 date string (must include time, e.g., `2025-01-16T10:00:00.000Z`)
 - `notes`: Optional
 - `gender`: Optional
 - `birthDate`: Optional, ISO 8601 date string
+
+**Error Responses:**
+
+**400 - Time slot not available:**
+```json
+{
+  "error": "Time slot not available",
+  "availableSlots": ["09:00", "10:00", "11:00", "14:00", "15:00"],
+  "requestedTime": "16:00"
+}
+```
+
+**409 - Time slot already booked:**
+```json
+{
+  "error": "This time slot is already booked",
+  "bookedTime": "10:00",
+  "date": "2025-01-16",
+  "existingAppointmentId": "clx1234567890"
+}
+```
+
+**Note:** 
+- If doctor has `availableSlots` defined, only those time slots can be booked
+- If `availableSlots` is null, any time can be booked (subject to double booking check)
+- The system prevents double booking by checking if another appointment exists at the same date and time
 
 ---
 
@@ -379,6 +414,51 @@ Get all appointments for a specific user.
 - `200` - Success
 
 **Note:** Results are sorted by date (newest first).
+
+---
+
+## Availability
+
+### GET /availability/:doctorId/availability
+
+Get available time slots for a doctor on a specific date. Shows which slots are available, booked, and free.
+
+**Path Parameters:**
+- `doctorId` - Doctor ID
+
+**Query Parameters:**
+- `date` (required) - Date in YYYY-MM-DD format
+
+**Example:**
+```
+GET /availability/clx1234567890/availability?date=2025-01-16
+```
+
+**Response (200):**
+```json
+{
+  "doctorId": "clx1234567890",
+  "date": "2025-01-16",
+  "availableSlots": ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00"],
+  "bookedSlots": ["10:00"],
+  "freeSlots": ["09:00", "11:00", "14:00", "15:00", "16:00"],
+  "totalAvailable": 6,
+  "totalBooked": 1,
+  "totalFree": 5
+}
+```
+
+**Status Codes:**
+- `200` - Success
+- `400` - Date parameter missing or invalid
+- `404` - Doctor not found
+- `500` - Server error
+
+**Notes:**
+- `availableSlots`: All time slots the doctor has defined (if none defined, returns all 24 hours)
+- `bookedSlots`: Time slots already booked by other users
+- `freeSlots`: Available slots that are not yet booked
+- Use this endpoint before booking to see available times
 
 ---
 
@@ -501,7 +581,8 @@ Create a new doctor.
   "ratingAverage": 4.5,
   "ratingCount": 50,
   "distanceM": 1000,
-  "categoryId": "clx1234567890"
+  "categoryId": "clx1234567890",
+  "availableSlots": ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00"]
 }
 ```
 
@@ -520,6 +601,7 @@ Create a new doctor.
     "ratingCount": 50,
     "distanceM": 1000,
     "categoryId": "clx1234567891",
+    "availableSlots": "[\"09:00\",\"10:00\",\"11:00\",\"14:00\",\"15:00\",\"16:00\"]",
     "category": {
       "id": "clx1234567891",
       "name": "Neurology",
@@ -545,6 +627,13 @@ Create a new doctor.
 - `ratingCount`: Optional, integer, default 0
 - `distanceM`: Optional, integer (distance in meters)
 - `categoryId`: Required, valid category ID
+- `availableSlots`: Optional, array of time slots in "HH:MM" format (e.g., `["09:00", "10:00", "11:00"]`)
+
+**Available Slots Examples:**
+- Morning only: `["09:00", "10:00", "11:00"]`
+- Afternoon only: `["14:00", "15:00", "16:00", "17:00"]`
+- Full day: `["08:00", "09:00", "10:00", "11:00", "14:00", "15:00", "16:00", "17:00"]`
+- If not provided, doctor accepts appointments at any time (subject to double booking check)
 
 ---
 
@@ -688,6 +777,16 @@ All endpoints may return the following error responses:
 }
 ```
 
+**Or for appointments:**
+```json
+{
+  "error": "This time slot is already booked",
+  "bookedTime": "10:00",
+  "date": "2025-01-16",
+  "existingAppointmentId": "clx1234567890"
+}
+```
+
 ### 500 Internal Server Error
 ```json
 {
@@ -754,8 +853,11 @@ Currently, there are no rate limits implemented. For production, consider adding
   ratingCount: number;
   distanceM?: number;
   categoryId: string;
+  availableSlots?: string; // JSON string array, e.g., "[\"09:00\",\"10:00\",\"11:00\"]"
 }
 ```
+
+**Note:** `availableSlots` is stored as a JSON string. When creating a doctor, send it as an array. When reading, it's returned as a JSON string that needs to be parsed.
 
 ### Review
 ```typescript
