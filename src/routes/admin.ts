@@ -58,6 +58,34 @@ router.get('/categories', async (req, res) => {
   }
 });
 
+// Delete all categories
+router.delete('/categories', async (req, res) => {
+  try {
+    const result = await prisma.category.deleteMany({});
+    res.json({ 
+      message: 'All categories deleted successfully',
+      deletedCount: result.count
+    });
+  } catch (error: any) {
+    console.error('Admin delete categories error:', error);
+    res.status(500).json({ error: error.message || 'Failed to delete categories' });
+  }
+});
+
+// Delete category by ID
+router.delete('/categories/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    await prisma.category.delete({
+      where: { id }
+    });
+    res.json({ message: 'Category deleted successfully' });
+  } catch (error: any) {
+    console.error('Admin delete category error:', error);
+    res.status(500).json({ error: error.message || 'Failed to delete category' });
+  }
+});
+
 // ===== DOCTORS =====
 
 // Create doctor
@@ -102,6 +130,34 @@ router.get('/doctors', async (req, res) => {
   } catch (error: any) {
     console.error('Admin get doctors error:', error);
     res.status(500).json({ error: error.message || 'Failed to fetch doctors' });
+  }
+});
+
+// Delete all doctors
+router.delete('/doctors', async (req, res) => {
+  try {
+    const result = await prisma.doctor.deleteMany({});
+    res.json({ 
+      message: 'All doctors deleted successfully',
+      deletedCount: result.count
+    });
+  } catch (error: any) {
+    console.error('Admin delete doctors error:', error);
+    res.status(500).json({ error: error.message || 'Failed to delete doctors' });
+  }
+});
+
+// Delete doctor by ID
+router.delete('/doctors/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    await prisma.doctor.delete({
+      where: { id }
+    });
+    res.json({ message: 'Doctor deleted successfully' });
+  } catch (error: any) {
+    console.error('Admin delete doctor error:', error);
+    res.status(500).json({ error: error.message || 'Failed to delete doctor' });
   }
 });
 
