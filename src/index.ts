@@ -37,7 +37,7 @@ app.get('/health', async (_req, res) => {
 
 app.use('/auth', authRouter);
 app.use('/catalog', catalogRouter);
-app.use('/admin/doctors', adminRouter);
+app.use('/admin', adminRouter);
 app.use('/doctors', doctorRouter);
 app.use('/appointments', appointmentRouter);
 
