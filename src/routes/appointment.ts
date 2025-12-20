@@ -97,7 +97,18 @@ router.post('/:doctorId/book', async (req, res) => {
 
 router.get('/user/:userId', async (req, res) => {
   const { userId } = req.params;
-  const list = await prisma.appointment.findMany({ where: { userId }, orderBy: { date: 'desc' } });
+  const list = await prisma.appointment.findMany({ 
+    where: { userId }, 
+    orderBy: { date: 'desc' },
+    include: {
+      doctor: {
+        select: {
+          id: true,
+          name: true
+        }
+      }
+    }
+  });
   res.json({ data: list });
 });
 
