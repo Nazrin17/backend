@@ -3,6 +3,7 @@ import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
+import type { UploadedFile } from 'express-fileupload';
 
 const prisma = new PrismaClient();
 const router = Router();
@@ -40,6 +41,58 @@ router.post('/login', async (req, res) => {
   if (!ok) return res.status(401).json({ error: 'Invalid credentials' });
   const token = jwt.sign({ sub: user.id }, process.env.JWT_SECRET as string, { expiresIn: '7d' });
   res.json({ token, user: { id: user.id, name: user.name, email: user.email } });
+});
+
+// Profil resmi yükleme endpoint'i
+router.put('/user/:userId/photo', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    
+    // Kullanıcının var olup olmadığını kontrol et
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Dosya kontrolü
+    if (!req.files || !req.files.photo) {
+      return res.status(400).json({ error: 'No photo file provided' });
+    }
+
+    const photo = req.files.photo as UploadedFile;
+    
+    // Dosya tipi kontrolü
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(photo.mimetype)) {
+      return res.status(400).json({ 
+        error: 'Invalid file type. Allowed types: jpeg, jpg, png, gif, webp' 
+      });
+    }
+
+    // Dosyayı base64 string'e çevir
+    const base64String = photo.data.toString('base64');
+    const dataUrl = `data:${photo.mimetype};base64,${base64String}`;
+
+    // Kullanıcının photoUrl'ini güncelle
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: { photoUrl: dataUrl },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        photoUrl: true
+      }
+    });
+
+    res.json({ 
+      message: 'Profile photo updated successfully',
+      user: updatedUser 
+    });
+  } catch (error: any) {
+    console.error('Profile photo upload error:', error);
+    res.status(500).json({ error: error.message || 'Failed to upload profile photo' });
+  }
 });
 
 export default router;

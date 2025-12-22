@@ -3,6 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import fileUpload from 'express-fileupload';
 import { PrismaClient } from '@prisma/client';
 
 import authRouter from './routes/auth.js';
@@ -25,6 +26,10 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
+app.use(fileUpload({
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+  abortOnLimit: true
+}));
 
 app.get('/health', async (_req, res) => {
   try {
