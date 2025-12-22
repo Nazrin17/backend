@@ -86,8 +86,10 @@ router.put('/user/:userId/photo', async (req, res) => {
     });
 
     res.json({ 
-      message: 'Profile photo updated successfully',
-      user: updatedUser 
+      data: {
+        message: 'Profile photo updated successfully',
+        user: updatedUser 
+      }
     });
   } catch (error: any) {
     console.error('Profile photo upload error:', error);
