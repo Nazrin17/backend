@@ -21,12 +21,20 @@ router.get('/doctors', async (req, res) => {
   const limitNum = parseInt(limit, 10) || 6;
   const skip = (pageNum - 1) * limitNum;
 
-  const where = {
-    AND: [
-      categoryId ? { categoryId } : {},
-      q ? { OR: [{ name: { contains: q, mode: 'insensitive' } }, { specialization: { contains: q, mode: 'insensitive' } }] } : {}
-    ]
-  };
+  const whereConditions: any[] = [];
+  if (categoryId) {
+    whereConditions.push({ categoryId });
+  }
+  if (q) {
+    whereConditions.push({
+      OR: [
+        { name: { contains: q, mode: 'insensitive' } },
+        { specialization: { contains: q, mode: 'insensitive' } }
+      ]
+    });
+  }
+
+  const where = whereConditions.length > 0 ? { AND: whereConditions } : {};
 
   const [doctors, total] = await Promise.all([
     prisma.doctor.findMany({
