@@ -17,8 +17,36 @@ router.get('/:id', async (req, res) => {
 
 router.get('/:id/reviews', async (req, res) => {
   const { id } = req.params;
-  const reviews = await prisma.review.findMany({ where: { doctorId: id }, include: { user: true }, orderBy: { createdAt: 'desc' } });
-  res.json({ data: reviews });
+  const { page = '1', limit = '6' } = req.query as { page?: string; limit?: string };
+  
+  const pageNum = parseInt(page, 10) || 1;
+  const limitNum = parseInt(limit, 10) || 6;
+  const skip = (pageNum - 1) * limitNum;
+
+  const where = { doctorId: id };
+
+  const [reviews, total] = await Promise.all([
+    prisma.review.findMany({ 
+      where, 
+      include: { user: true }, 
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: limitNum
+    }),
+    prisma.review.count({ where })
+  ]);
+
+  const totalPages = Math.ceil(total / limitNum);
+
+  res.json({ 
+    data: reviews,
+    pagination: {
+      page: pageNum,
+      limit: limitNum,
+      total,
+      totalPages
+    }
+  });
 });
 
 const reviewSchema = z.object({ rating: z.number().int().min(1).max(5), comment: z.string().min(1), userId: z.string() });

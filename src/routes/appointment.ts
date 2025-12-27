@@ -97,19 +97,43 @@ router.post('/:doctorId/book', async (req, res) => {
 
 router.get('/user/:userId', async (req, res) => {
   const { userId } = req.params;
-  const list = await prisma.appointment.findMany({ 
-    where: { userId }, 
-    orderBy: { date: 'desc' },
-    include: {
-      doctor: {
-        select: {
-          id: true,
-          name: true
+  const { page = '1', limit = '6' } = req.query as { page?: string; limit?: string };
+  
+  const pageNum = parseInt(page, 10) || 1;
+  const limitNum = parseInt(limit, 10) || 6;
+  const skip = (pageNum - 1) * limitNum;
+
+  const where = { userId };
+
+  const [list, total] = await Promise.all([
+    prisma.appointment.findMany({ 
+      where, 
+      orderBy: { date: 'desc' },
+      include: {
+        doctor: {
+          select: {
+            id: true,
+            name: true
+          }
         }
-      }
+      },
+      skip,
+      take: limitNum
+    }),
+    prisma.appointment.count({ where })
+  ]);
+
+  const totalPages = Math.ceil(total / limitNum);
+
+  res.json({ 
+    data: list,
+    pagination: {
+      page: pageNum,
+      limit: limitNum,
+      total,
+      totalPages
     }
   });
-  res.json({ data: list });
 });
 
 export default router;

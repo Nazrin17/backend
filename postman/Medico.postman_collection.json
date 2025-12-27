@@ -129,7 +129,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/catalog/doctors?categoryId=&q=",
+							"raw": "{{baseUrl}}/catalog/doctors?categoryId=&q=&page=1&limit=6",
 							"host": ["{{baseUrl}}"],
 							"path": ["catalog", "doctors"],
 							"query": [
@@ -142,10 +142,20 @@
 									"key": "q",
 									"value": "",
 									"description": "Search query for doctor name or specialization (optional)"
+								},
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number (default: 1)"
+								},
+								{
+									"key": "limit",
+									"value": "6",
+									"description": "Items per page (default: 6)"
 								}
 							]
 						},
-						"description": "Get list of doctors. Can filter by categoryId or search by name/specialization"
+						"description": "Get list of doctors with pagination. Can filter by categoryId or search by name/specialization. Returns 6 items per page by default."
 					},
 					"response": []
 				},
@@ -155,7 +165,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/catalog/doctors?categoryId={{categoryId}}",
+							"raw": "{{baseUrl}}/catalog/doctors?categoryId={{categoryId}}&page=1&limit=6",
 							"host": ["{{baseUrl}}"],
 							"path": ["catalog", "doctors"],
 							"query": [
@@ -163,10 +173,20 @@
 									"key": "categoryId",
 									"value": "{{categoryId}}",
 									"description": "Category ID (e.g., Neurology, Cardiology)"
+								},
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number (default: 1)"
+								},
+								{
+									"key": "limit",
+									"value": "6",
+									"description": "Items per page (default: 6)"
 								}
 							]
 						},
-						"description": "Get doctors filtered by category"
+						"description": "Get doctors filtered by category with pagination (6 items per page)"
 					},
 					"response": []
 				},
@@ -176,7 +196,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/catalog/doctors?q=psychiatrist",
+							"raw": "{{baseUrl}}/catalog/doctors?q=psychiatrist&page=1&limit=6",
 							"host": ["{{baseUrl}}"],
 							"path": ["catalog", "doctors"],
 							"query": [
@@ -184,10 +204,20 @@
 									"key": "q",
 									"value": "psychiatrist",
 									"description": "Search term"
+								},
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number (default: 1)"
+								},
+								{
+									"key": "limit",
+									"value": "6",
+									"description": "Items per page (default: 6)"
 								}
 							]
 						},
-						"description": "Search doctors by name or specialization"
+						"description": "Search doctors by name or specialization with pagination (6 items per page)"
 					},
 					"response": []
 				}
@@ -216,11 +246,23 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/doctors/{{doctorId}}/reviews",
+							"raw": "{{baseUrl}}/doctors/{{doctorId}}/reviews?page=1&limit=6",
 							"host": ["{{baseUrl}}"],
-							"path": ["doctors", "{{doctorId}}", "reviews"]
+							"path": ["doctors", "{{doctorId}}", "reviews"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number (default: 1)"
+								},
+								{
+									"key": "limit",
+									"value": "6",
+									"description": "Items per page (default: 6)"
+								}
+							]
 						},
-						"description": "Get all reviews for a doctor"
+						"description": "Get reviews for a doctor with pagination (6 items per page)"
 					},
 					"response": []
 				},
@@ -297,11 +339,23 @@
 							}
 						],
 						"url": {
-							"raw": "{{baseUrl}}/appointments/user/{{userId}}",
+							"raw": "{{baseUrl}}/appointments/user/{{userId}}?page=1&limit=6",
 							"host": ["{{baseUrl}}"],
-							"path": ["appointments", "user", "{{userId}}"]
+							"path": ["appointments", "user", "{{userId}}"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number (default: 1)"
+								},
+								{
+									"key": "limit",
+									"value": "6",
+									"description": "Items per page (default: 6)"
+								}
+							]
 						},
-						"description": "Get all appointments for a user"
+						"description": "Get appointments for a user with pagination (6 items per page)"
 					},
 					"response": []
 				}
