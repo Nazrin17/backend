@@ -67,7 +67,56 @@ router.post('/:id/reviews', async (req, res) => {
   res.status(201).json({ data: review });
 });
 
-// Doctor fotoğrafı yükleme endpoint'i
+// Doctor photoUrl'ini direkt URL string ile güncelleme endpoint'i
+const updatePhotoUrlSchema = z.object({ photoUrl: z.string().url() });
+router.put('/:id/photoUrl', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Doctor'un var olup olmadığını kontrol et
+    const doctor = await prisma.doctor.findUnique({ where: { id } });
+    if (!doctor) {
+      return res.status(404).json({ error: 'Doctor not found' });
+    }
+
+    // Request body validation
+    const parse = updatePhotoUrlSchema.safeParse(req.body);
+    if (!parse.success) {
+      return res.status(400).json({ error: 'Invalid photoUrl. Must be a valid URL string.' });
+    }
+
+    const { photoUrl } = parse.data;
+
+    // Doctor'un photoUrl'ini güncelle
+    const updatedDoctor = await prisma.doctor.update({
+      where: { id },
+      data: { photoUrl },
+      select: {
+        id: true,
+        name: true,
+        specialization: true,
+        photoUrl: true,
+        experienceYrs: true,
+        patientsCount: true,
+        feeCents: true,
+        ratingAverage: true,
+        ratingCount: true
+      }
+    });
+
+    res.json({ 
+      data: {
+        message: 'Doctor photoUrl updated successfully',
+        doctor: updatedDoctor
+      }
+    });
+  } catch (error: any) {
+    console.error('Doctor photoUrl update error:', error);
+    res.status(500).json({ error: error.message || 'Failed to update doctor photoUrl' });
+  }
+});
+
+// Doctor fotoğrafı yükleme endpoint'i (file upload)
 router.put('/:id/photo', async (req, res) => {
   try {
     const { id } = req.params;

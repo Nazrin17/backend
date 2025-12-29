@@ -84,6 +84,31 @@
 						"description": "Login with email and password"
 					},
 					"response": []
+				},
+				{
+					"name": "Update User Profile Photo",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "photo",
+									"type": "file",
+									"src": [],
+									"description": "User profile photo file (jpeg, jpg, png, gif, webp)"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/user/{{userId}}/photo",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "user", "{{userId}}", "photo"]
+						},
+						"description": "Update user profile photo. Upload image file (max 10MB). Supported formats: jpeg, jpg, png, gif, webp"
+					},
+					"response": []
 				}
 			]
 		},
@@ -297,7 +322,30 @@
 					"response": []
 				},
 				{
-					"name": "Update Doctor Photo",
+					"name": "Update Doctor Photo URL",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"photoUrl\": \"https://example.com/doctor-photo.jpg\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/doctors/{{doctorId}}/photoUrl",
+							"host": ["{{baseUrl}}"],
+							"path": ["doctors", "{{doctorId}}", "photoUrl"]
+						},
+						"description": "Update doctor photoUrl directly with URL string. Send photoUrl as JSON body."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Doctor Photo (File Upload)",
 					"request": {
 						"method": "PUT",
 						"header": [],
