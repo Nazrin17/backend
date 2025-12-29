@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
+import type { UploadedFile } from 'express-fileupload';
 
 const prisma = new PrismaClient();
 const router = Router();
@@ -64,6 +65,65 @@ router.post('/:id/reviews', async (req, res) => {
     } 
   });
   res.status(201).json({ data: review });
+});
+
+// Doctor fotoğrafı yükleme endpoint'i
+router.put('/:id/photo', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Doctor'un var olup olmadığını kontrol et
+    const doctor = await prisma.doctor.findUnique({ where: { id } });
+    if (!doctor) {
+      return res.status(404).json({ error: 'Doctor not found' });
+    }
+
+    // Dosya kontrolü
+    if (!req.files || !req.files.photo) {
+      return res.status(400).json({ error: 'No photo file provided' });
+    }
+
+    const photo = req.files.photo as UploadedFile;
+    
+    // Dosya tipi kontrolü
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(photo.mimetype)) {
+      return res.status(400).json({ 
+        error: 'Invalid file type. Allowed types: jpeg, jpg, png, gif, webp' 
+      });
+    }
+
+    // Dosyayı base64 string'e çevir
+    const base64String = photo.data.toString('base64');
+    const dataUrl = `data:${photo.mimetype};base64,${base64String}`;
+
+    // Doctor'un photoUrl'ini güncelle
+    const updatedDoctor = await prisma.doctor.update({
+      where: { id },
+      data: { photoUrl: dataUrl },
+      select: {
+        id: true,
+        name: true,
+        specialization: true,
+        photoUrl: true,
+        experienceYrs: true,
+        patientsCount: true,
+        feeCents: true,
+        ratingAverage: true,
+        ratingCount: true
+      }
+    });
+
+    res.json({ 
+      data: {
+        message: 'Doctor photo updated successfully',
+        doctor: updatedDoctor
+      }
+    });
+  } catch (error: any) {
+    console.error('Doctor photo upload error:', error);
+    res.status(500).json({ error: error.message || 'Failed to upload doctor photo' });
+  }
 });
 
 export default router;

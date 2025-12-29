@@ -129,20 +129,10 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/catalog/doctors?categoryId=&q=&page=1&limit=6",
+							"raw": "{{baseUrl}}/catalog/doctors?page=1&limit=6",
 							"host": ["{{baseUrl}}"],
 							"path": ["catalog", "doctors"],
 							"query": [
-								{
-									"key": "categoryId",
-									"value": "",
-									"description": "Filter by category ID (optional)"
-								},
-								{
-									"key": "q",
-									"value": "",
-									"description": "Search query for doctor name or specialization (optional)"
-								},
 								{
 									"key": "page",
 									"value": "1",
@@ -152,6 +142,18 @@
 									"key": "limit",
 									"value": "6",
 									"description": "Items per page (default: 6)"
+								},
+								{
+									"key": "categoryId",
+									"value": "",
+									"description": "Filter by category ID (optional)",
+									"disabled": true
+								},
+								{
+									"key": "q",
+									"value": "",
+									"description": "Search query for doctor name or specialization (optional)",
+									"disabled": true
 								}
 							]
 						},
@@ -291,6 +293,31 @@
 							"path": ["doctors", "{{doctorId}}", "reviews"]
 						},
 						"description": "Create a new review for a doctor (rating 1-5, comment required)"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Doctor Photo",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "photo",
+									"type": "file",
+									"src": [],
+									"description": "Doctor photo file (jpeg, jpg, png, gif, webp)"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/doctors/{{doctorId}}/photo",
+							"host": ["{{baseUrl}}"],
+							"path": ["doctors", "{{doctorId}}", "photo"]
+						},
+						"description": "Update doctor profile photo. Upload image file (max 10MB). Supported formats: jpeg, jpg, png, gif, webp"
 					},
 					"response": []
 				}
