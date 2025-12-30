@@ -135,6 +135,20 @@
 			"name": "Catalog",
 			"item": [
 				{
+					"name": "Get About",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/catalog/about",
+							"host": ["{{baseUrl}}"],
+							"path": ["catalog", "about"]
+						},
+						"description": "Get about screen data including hospital name, hero section, mission, and why Medora information"
+					},
+					"response": []
+				},
+				{
 					"name": "Get Categories",
 					"request": {
 						"method": "GET",
